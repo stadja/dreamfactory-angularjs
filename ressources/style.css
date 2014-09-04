@@ -1,0 +1,8 @@
+.loader.on {
+    opacity: 1;
+    transition-duration: 1000ms;
+}
+.loader.off {
+    opacity: 0;
+    transition-duration: 1000ms;
+}
