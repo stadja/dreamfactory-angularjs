@@ -10,6 +10,7 @@
                 var data = {
                     recordTemplateUrl: 'templates/post-display.html',
                     tableName: 'posts',
+                    order: 'id DESC'
                 };
 
                 posts._createRecordFromApi = function(apiRecord) {

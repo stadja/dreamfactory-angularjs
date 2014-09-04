@@ -9,7 +9,8 @@
                     recordTemplateUrl: 'abstract',
                     api: 'stadjadb',
                     tableName: 'abstract',
-                    related: ''
+                    related: '',
+                    order: ''
                 };
                 this.setData(data);
             };
@@ -31,7 +32,8 @@
                             limit: limit,
                             offset: offset,
                             related: recordManager.related,
-                            include_count: 'true'
+                            include_count: 'true',
+                            order: recordManager.order
                         }, function(response) {
                             response = response.obj;
                             records = [];
