@@ -9,8 +9,8 @@
                     recordTemplateUrl: 'abstract',
                     api: 'stadjadb',
                     tableName: 'abstract',
-                    related: '',
-                    order: ''
+                    related: null,
+                    order: null
                 };
                 this.setData(data);
             };

@@ -10,8 +10,16 @@
         //replace this app_name with yours
         var app_name = "prototype";
 
+        var storageId = "prototype";
+        var tokenStorageId = storageId+".tokenId";
+        var duration = 36000;
+
         $http.defaults.headers.common['X-DreamFactory-Application-Name'] = app_name;
         $http.defaults.headers.common['Content-Type'] = 'application/json';
+
+        if (sessionStorage.getItem(tokenStorageId)) {
+            $http.defaults.headers.common['X-DreamFactory-Session-Token'] = sessionStorage.getItem(tokenStorageId);
+        }
 
         this.init = function(callback, login, pwd) {
 
@@ -23,7 +31,9 @@
         };
 
         this.getRecordsByFilter = function (apiName, apiAction, args, callback) {
-            $http.get(dsp_url+'/'+apiName+'/'+args.table_name,
+            var table_name = args.table_name;
+            args.table_name = null;
+            $http.get(dsp_url+'/'+apiName+'/'+table_name,
                 {
                     params: args
                 }
@@ -34,25 +44,56 @@
                 callback(response);
             });
         };
-/*
-        this.login = function(login, pwd, callback) {
 
-            if (dreamFactory.checkReadyOrThrow()) {
-                var body = {
-                    "email": login,
-                    "password": pwd
-                };
-                window.df.apis.user.login({
-                    "body": body
-                }, function(response) {
-                    // assign session token to be used for the session duration
-                    var session = new ApiKeyAuthorization("X-Dreamfactory-Session-Token", response.session_id, 'header');
-                    window.authorizations.add("X-DreamFactory-Session-Token", session);
-                    return callback ? callback() : true;
-                });
-            }
-        };
+        this.getSession = function(success, error) {
+            $http.get(dsp_url+'/user/session').success(function(data, status, headers, config) {
+                if (data.session_id) {
+                    $http.defaults.headers.common['X-DreamFactory-Session-Token'] = data.session_id;
+                    sessionStorage.setItem(tokenStorageId, data.session_id);
+                    if (success) {
+                        success(data, status, headers, config);
+                    }
+                } else if (error) {
+                    error(data, status, headers, config);
+                }
+            }).error(function(data, status, headers, config) {
+                console.log(data.error[0].message);
+                if (error) {
+                    error(data, status, headers, config);
+                }
+            });
+        }
 
-        var dreamFactory = this;*/
+        this.logout = function(callback) {
+            $http.delete(dsp_url+'/user/session').success(function(data, status, headers, config) {
+                sessionStorage.removeItem(tokenStorageId);
+                if (callback) {
+                    callback(data, status, headers, config);
+                }
+            }).error(function(data, status, headers, config) {
+                console.log(data.error[0].message);
+            });
+        }
+
+        this.login = function(username, password, success, error) {
+            $http.post(dsp_url+'/user/session',
+                {
+                    email: username,
+                    password: password,
+                    duration: duration
+                }
+            ).success(function(data, status, headers, config) {
+                $http.defaults.headers.common['X-DreamFactory-Session-Token'] = data.session_id;
+                sessionStorage.setItem(tokenStorageId, data.session_id);
+                if (success) {
+                    success(data, status, headers, config);
+                }
+            }).error(function(data, status, headers, config) {
+                console.log(data.error[0].message);
+                if (error) {
+                    error(data, status, headers, config);
+                }
+            });
+        }
     }]);
 })()

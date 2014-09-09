@@ -15,5 +15,5 @@ if (typeof console == 'undefined') {
 }
 
 (function() {
-    var app = angular.module('CollaborateurSpinner', ['ControllerStoreController']);
+    var app = angular.module('Blog', ['controllers', 'filters']);
 })()

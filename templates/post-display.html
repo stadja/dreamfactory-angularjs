@@ -1,2 +1,2 @@
-<h2>{{record.title}}</h2>
-<p ng-bind-html="record.html"></p>
+<h2 ng-bind-html="record.title | htmlHighlight:search"></h2>
+<p ng-bind-html="record.body | markdownHighlight:search | markdown"></p>

@@ -1,21 +1,24 @@
 (function() {
-    var app = angular.module('ControllerStoreController', ['Models']);
+    var app = angular.module('controllers', ['Models']);
 
-    app.controller('StoreController', ['$scope', 'Posts', function($scope, Posts) {
+    app.controller('StoreController', ['$scope', 'Posts', 'Users', function($scope, Posts, Users) {
         $scope.Math=Math;
         var store = this;
         var scope = $scope;
         store.loading = true;
         store.cache = [];
 
+        var users = new Users();
+        users.getSession();
+
         this.next = function() {
             this.offset += this.limit
-            this.loadRecords();
+          //  this.loadRecords();
         }
 
         this.prev = function() {
             this.offset -= this.limit
-            this.loadRecords();
+        //    this.loadRecords();
         }
 
         this.init = function() {
@@ -36,7 +39,7 @@
                 store.count = temp.count;
             } else {
                 store.loading = true;
-                this.recordManager.loadRecords(this.limit, this.offset, function(records, count) {
+                this.recordManager.loadRecords(undefined, undefined, function(records, count) {
                     store.records = records;
                     store.count = count;
                     store.cache[key] = {
@@ -54,13 +57,13 @@
 
         this.recordManager = new Posts();
         this.limit = 5;
+        store.init();
 
-        scope.$watch(function() {
+       /* scope.$watch(function() {
             return store.limit;
         }, function(newValue, oldValue) {
             store.init();
-
-        });
+        });*/
 
     }]);
 
