@@ -36,4 +36,27 @@
         }
     }]);
 
+    app.filter('categories', [function() {
+        return function(records, categories) {
+            var out = [];
+            categories = categories.filter(function(val) { return val;});
+            if (!categories || !categories.length) {
+                out = records;
+            } else {
+                categories.forEach(function(catLibelle) {
+                    records.forEach(function(record) {
+                        if (record.oldCategorieValues) {
+                            record.oldCategorieValues.forEach(function(catInRecord) {
+                                if (catInRecord.libelle == catLibelle) {
+                                   out.push(record); 
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            return out;
+        }
+    }]);
+
 })()

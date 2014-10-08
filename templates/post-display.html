@@ -1,2 +1,52 @@
-<h2 ng-bind-html="record.title | htmlHighlight:search"></h2>
-<p ng-bind-html="record.body | markdownHighlight:search | markdown"></p>
+<script type="application/ld+json">
+var test = {{record.title}};
+{
+  "@context" : "http://schema.org",
+  "@type" : "BlogPosting",
+  "name" : test,
+  "article" : '{{record.body | markdown}}'
+}
+</script>
+
+<div>
+    <h2 ng-bind-html="record.title | htmlHighlight:search" itemprop="name"></h2>
+    <ul>
+        <il ng-repeat="categorie in record.oldCategorieValues">{{categorie.libelle}}</il>
+    </ul>
+    <p ng-bind-html="record.body | markdownHighlight:search | markdown" itemprop="description"></p>
+</div>
+
+<div ng-if="store.logged">
+    <legend ng-click='record.show = (false || !record.show);'>
+        <button class="btn">
+            <i class='glyphicon glyphicon-pencil'></i>
+        </button>
+    </legend>
+    <div ng-if='record.show'>
+        <div>
+            <form class="form-inline" role="form">
+                <div class="checkbox" ng-repeat="categorie in store.categories">
+                    <label>
+                        <input type="checkbox" ng-true-value="{{categorie}}" ng-false-value="{{categorie.getRemoveFromPostVersion()}}" ng-model="record.category_by_posts_categories[$index]" ng-checked="record.isInCategorie(categorie)"> {{categorie.libelle}}
+                    </label>
+                </div>
+                <div>
+                    <input type="text" ng-model="store.newCategorie"><button ng-click="store.createNewCategorie()" class="btn btn-success btn-sm">
+                        <i class='glyphicon glyphicon-plus'></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div>
+            <input type='text' value="record.title" ng-model="record.title" style="margin: 0px; min-width: 100%;"></input>
+        </div>
+        <div>
+            <textarea  value="record.body" ng-model="record.body" style="margin: 0px; min-height: 300px;"></textarea>
+        </div>
+        <div>
+            <input type='checkbox' value="record.published" ng-model="record.published"></input>
+        </div>
+        <button class="btn btn-success" ng-click='store.saveRecord(record)'>Save</button>
+        <button ng-show="!record.published" class="btn btn-danger" ng-click='store.deleteRecord(record)'>Delete</button>
+    </div>
+</div>

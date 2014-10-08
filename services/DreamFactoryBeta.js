@@ -30,6 +30,30 @@
             functionCalled(apiName, apiAction, args, callback);
         };
 
+        this.deleteRecord = function (apiName, apiAction, args, callback) {
+            var table_name = args.table_name;
+            args.table_name = null;
+            $http.delete(dsp_url+'/'+apiName+'/'+table_name+'/'+args.id).success(function(data, status, headers, config) {
+                var response = {
+                    obj: data
+                }
+                callback(response);
+            });
+        };
+
+        this.updateRecord = function (apiName, apiAction, args, callback) {
+            var table_name = args.table_name;
+            args.table_name = null;
+            $http.patch(dsp_url+'/'+apiName+'/'+table_name+'/'+args.id,
+                args
+            ).success(function(data, status, headers, config) {
+                var response = {
+                    obj: data
+                }
+                callback(response);
+            });
+        };
+
         this.getRecordsByFilter = function (apiName, apiAction, args, callback) {
             var table_name = args.table_name;
             args.table_name = null;

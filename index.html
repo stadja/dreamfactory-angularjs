@@ -1,43 +1,90 @@
 <!doctype html>
-<html ng-app='Blog'>
+<html id="ng-app" ng-app='Blog'>
 <head>
-    <!-- <script src="lib/require.js"></script> -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.0/angular.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="lib/xdomain.js" slave="http://stadja.net:81/proxy.html"></script>
+    <script src="lib/angular.js"></script>
     <script src='lib/markdown.js' type='text/javascript'></script>
     <script src='app.js' type='text/javascript'></script>
+    <script src='lib/autofill.js' type='text/javascript'></script>
+    <script src='controllers/Abstract.js' type='text/javascript'></script>
     <script src='controllers/StoreController.js' type='text/javascript'></script>
+    <script src='controllers/LoginController.js' type='text/javascript'></script>
     <script src='filters/Filters.js' type='text/javascript'></script>
     <script src='services/DreamFactoryBeta.js' type='text/javascript'></script>
     <script src='models/Abstract.js' type='text/javascript'></script>
     <script src='models/Posts.js' type='text/javascript'></script>
+    <script src='models/Categories.js' type='text/javascript'></script>
     <script src='models/Users.js' type='text/javascript'></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" href="ressources/style.css">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Exo:200,300,400,600,700">
+    <title>Test de prototype</title>
 </head>
 <body ng-controller="StoreController as store">
-    <h1>
-        <a ng-click="store.changeRecordManager('Posts')">Les Posts</a>
-        <img src="ressources/ajax-loader.gif" class="loader" ng-class="{on:store.loading, off:!store.loading}"/>
-    </h1>
-    <div>
-        <form name='limitForm' class='form-inline'>
-            <span ng-show='store.records'>
-                <input type="number" min="0" size="3" ng-model="store.offset" ng-change='limitForm.$valid' value="{{store.offset}}"/> / {{(store.records | filter:search).length - 1}}
-                <button class="btn" ng-click='store.prev()' ng-disabled='!store.offset'>
-                    <i class='glyphicon glyphicon-chevron-left'></i>
-                </button>
-                <button class="btn" ng-click='store.next()' ng-disabled='(store.records | filter:search).length <= (store.offset + store.limit)'>
-                    <i class='glyphicon glyphicon-chevron-right'></i>
-                </button>
-                {{Math.floor(store.offset/store.limit) + 1}}/{{Math.floor((store.records | filter:search).length/store.limit) + 1}} :
-                <input type="number" min="1" size="3" ng-model="store.limit" ng-change='limitForm.$valid' value="{{store.limit}}"/>
-            </span>
-        </form>
-        <input ng-model='search' placeholder='filter...'/>
-    <span>
-        <ul class='list-group'>
-            <li class="list-group-item" ng-repeat='record in store.records | filter:search | offsetTo:store.offset | limitTo:store.limit' record-display></li>
-        </ul>
+
+    <div class="container-fluid">
+        <div class="row">
+             <div class="col-xs-1 col-md-0" style='float: right;'>
+             </div>
+             <div class="col-xs-8 col-md-2" style='float: right;'>
+                 <login-form></login-Form>
+             </div>
+             <div class="col-xs-12 col-md-7 col-md-offset-2" style='float: left;'>
+                 <div class="row">
+                    <h1>
+                        <a ng-click="store.changeRecordManager('Posts')">Les Posts</a>
+                    </h1>
+                        <button class="btn" ng-show="store.logged" ng-click='showAddForm = (false || !showAddForm);'>
+                            <i class='glyphicon glyphicon-plus'></i>
+                        </button>
+                        <div ng-if='showAddForm' ng-repeat='record in [{}]' record-display></div>
+                        <img src="ressources/ajax-loader.gif" class="loader" ng-class="{on:store.loading, off:!store.loading}"/>
+                 </div>
+                 <div class="row">
+                     <form name='limitForm' class='form-inline'>
+                         <span ng-show='store.records'>
+                             <input type="number" min="0" size="3" ng-model="store.offset" ng-change='limitForm.$valid' value="{{store.offset}}"/> / {{(store.records | filter:search).length - 1}}
+                             <button class="btn" ng-click='store.prev()' ng-disabled='!store.offset'>
+                                 <i class='glyphicon glyphicon-chevron-left'></i>
+                             </button>
+                             <button class="btn" ng-click='store.next()' ng-disabled='(store.records | filter:search).length <= (store.offset + store.limit)'>
+                                 <i class='glyphicon glyphicon-chevron-right'></i>
+                             </button>
+                             {{Math.floor(store.offset/store.limit) + 1}}/{{Math.floor((store.records | filter:search).length/store.limit) + 1}} :
+                             <input type="number" min="1" size="3" ng-model="store.limit" ng-change='limitForm.$valid' value="{{store.limit}}"/>
+                         </span>
+                     </form>
+
+                    <div>
+                        <form class="form-inline" role="form">
+                            <div class="checkbox" ng-repeat="categorie in store.categories">
+                                <label>
+                                    <input type="checkbox" value="{{categorie.libelle}}" ng-true-value="'{{categorie.libelle}}'" ng-false-value="''" ng-model="store.catfilter[$index]"> {{categorie.libelle}}
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+
+                     <input ng-model='search' placeholder='filter...'/>
+                     <div>
+                         <ul class='list-group'>
+                             <li class="list-group-item" ng-repeat='record in store.records | filter:search | categories:store.catfilter | offsetTo:store.offset | limitTo:store.limit' record-display itemtype="http://schema.org/BlogPosting" itemscope></li>
+                         </ul>
+                     </div>
+                     <form name='limitForm' class='form-inline'>
+                        <span ng-show='store.records'>
+                             <button class="btn" ng-click='store.prev()' ng-disabled='!store.offset'>
+                                 <i class='glyphicon glyphicon-chevron-left'></i>
+                             </button>
+                             <button class="btn" ng-click='store.next()' ng-disabled='(store.records | filter:search).length <= (store.offset + store.limit)'>
+                                 <i class='glyphicon glyphicon-chevron-right'></i>
+                             </button>
+                        </span>
+                     </form>
+                 </div>
+             </div>
+         </div>
     </div>
 </body>
 </html>
